@@ -7,6 +7,8 @@ public class ContaCorrente extends Conta{
 
     @Override
     public void imprimirExtrato() {
-
+        System.out.println(titular.getNome() + "\n"
+                + agencia + " - " + numero + "\n"
+                + "Saldo: R$" + saldo + "\n");
     }
 }

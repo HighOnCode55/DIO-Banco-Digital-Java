@@ -17,7 +17,37 @@ public class Leitor {
      * @param prompt A mensagem a ser exibida para o usuário.
      * @return A String digitada pelo usuário.
      */
-    public String lerString(String prompt) {
+    public Integer lerInt(String prompt) {
+        System.out.print(prompt);
+        String trim = scanner.nextLine().trim();
+        try {
+            return Integer.parseInt(trim);
+        } catch (NumberFormatException e) {
+            System.out.println("Erro: Por favor digite um número inteiro válido.");
+            return lerInt(prompt); // recursively try again
+        }
+    }
+
+
+    public Boolean lerSN(String prompt) {
+        while(true) {
+            System.out.print(prompt);
+            String respostaSN = scanner.nextLine().trim();
+            if (respostaSN.equalsIgnoreCase("s")) {
+                return true;
+            }
+            if (respostaSN.equalsIgnoreCase("n")) {
+                return false;
+            }
+        }
+    }
+
+    public String ler(String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine();
+    }
+
+    public String lerCpf(String prompt){
         System.out.print(prompt);
         return scanner.nextLine().trim();
     }
@@ -29,29 +59,21 @@ public class Leitor {
      * @return O CPF contendo apenas os dígitos.
      */
     public String cpf(String prompt) {
-        while (true) {
-            // 1. Primeiro, lemos a entrada do usuário como uma String normal.
-            String cpfComFormatacao = lerString(prompt);
-
-            // 2. Usamos replaceAll para remover tudo que não for um dígito.
-            String cpfSanitizado = cpfComFormatacao.replaceAll("[^0-9]", "");
+            String cpfInput = lerCpf(prompt);
+            String cpfSanitizado = lerCpf(prompt).replaceAll("[^0-9]", "");
 
             if (cpfSanitizado.length() == 11) {
-                // Se o CPF tem 11 dígitos, ele é válido!
-                // O 'return' faz duas coisas: retorna o valor e sai do método (e do laço).
                 return cpfSanitizado;
             } else {
-                // Se não, avisamos o usuário e o laço 'while' continua,
-                // pedindo a entrada novamente.
                 print("Erro: O CPF deve conter 11 dígitos. Você inseriu " + cpfSanitizado.length() + " dígitos. Tente novamente.");
             }
         }
-    }
 
     // Você pode criar um lerDouble() seguindo a mesma lógica
     public double lerDouble(String prompt) {
         while (true) {
-            String linha = lerString(prompt);
+            print(prompt);
+            String linha = scanner.nextLine().trim();
             try {
                 return Double.parseDouble(linha);
             } catch (NumberFormatException e) {

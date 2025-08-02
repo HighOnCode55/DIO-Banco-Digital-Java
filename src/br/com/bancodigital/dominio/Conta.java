@@ -49,4 +49,7 @@ public abstract class Conta {
 
     public abstract void imprimirExtrato();
 
+    public String getNumero() {
+        return numero;
+    }
 }
