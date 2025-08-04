@@ -2,8 +2,11 @@ package br.com.bancodigital.aplicacao;
 
 import br.com.bancodigital.dominio.Cliente;
 import br.com.bancodigital.dominio.Conta;
+import br.com.bancodigital.dominio.ContaCorrente;
 import br.com.bancodigital.util.Leitor;
 import br.com.bancodigital.servico.Banco;
+
+import java.util.List;
 
 public class Terminal {
     private Banco banco = new Banco();
@@ -29,7 +32,7 @@ public class Terminal {
     //acessoCliente não leva laço while pois leitor.cpf já tem laço while para garantir entrada de cpf válido
     private void acessoCliente() {
         String lerCPF;
-        lerCPF = leitor.cpf("Digite o seu CPF ou 0 para sair:");
+        lerCPF = leitor.cpf("Digite o seu CPF ou 0 para voltar");
         if (lerCPF.equals("0")) {menuPrincipal();}
         if (banco.clienteExiste(lerCPF)) {
             clienteLogado = lerCPF;
@@ -41,10 +44,10 @@ public class Terminal {
     //menuCliente leva laço while pois leitor.ler não contém o mesmo
     private void menuCliente() {
         if (clienteLogado != null) while (true) {
-            Integer ler = leitor.lerInt("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
+            String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
                     "1. Gerenciar Contas\n" +
                     "2. Gerenciar Cadastro\n" +
-                    "3. Sair");
+                    "3. Sair\n");
             if (ler.equals("1")) {
                 gerenciarContas();
             }
@@ -61,16 +64,61 @@ public class Terminal {
         }
     }
 
-    private void gerenciarContas(){
+    private void gerenciarContas() {
+        while (true) {
+            print("\n--- Seleção de Contas para " + clienteLogado + " ---");
 
+            // 1. Busca a lista de contas ATUALIZADA a cada iteração do laço.
+            List<Conta> contasDoCliente = banco.buscarContaCliente(clienteLogado);
+
+            if (contasDoCliente.isEmpty()) {
+                print("Você ainda não possui contas.");
+            } else {
+                print("Suas contas:");
+                // 2. Exibe as contas existentes, numeradas de 1 a N.
+                for (int i = 0; i < contasDoCliente.size(); i++) {
+                    Conta conta = contasDoCliente.get(i);
+                    String tipoConta = (conta instanceof ContaCorrente) ? "Conta Corrente" : "Conta Poupança";
+                    print(String.format("%d. %s | Número: %s | Saldo: R$ %.2f",
+                            (i + 1), tipoConta, conta.getNumero(), conta.getSaldo()));
+                }
+            }
+
+            print("---------------------------------------");
+            // 3. Adiciona as OPÇÕES DE AÇÃO ao final do menu.
+            print((contasDoCliente.size() + 1) + ". Criar Nova Conta");
+            print("0. Voltar ao Menu Anterior");
+
+            int escolha = leitor.lerInt("Digite sua opção: ");
+
+            // 4. Processa a escolha do usuário.
+            if (escolha == 0) {
+                // Se escolheu 0, sai do laço e volta para o menu do cliente.
+                break;
+            } else if (escolha == (contasDoCliente.size() + 1)) {
+                // Se escolheu a opção de criar conta, chama o método apropriado.
+                // O laço 'while' vai continuar, mostrando a lista atualizada.
+                criarConta();
+            } else if (escolha > 0 && escolha <= contasDoCliente.size()) {
+                // Se escolheu uma conta existente, seleciona e vai para o menu de operações.
+                this.contaSelecionada = contasDoCliente.get(escolha - 1);
+                menuConta();
+                // Após sair do menuDaConta, podemos querer voltar ao menu do cliente, então saímos do laço.
+                break;
+            } else {
+                print("Erro: Opção inválida. Tente novamente.");
+            }
+        }
     }
 
-    private void gerenciarCadastro() {
-        if (clienteLogado != null) while (true) {
-            Integer ler = leitor.lerInt("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
-                    "1. Corrigir nome\n" +
-                    "2. Fechar Conta\n" +
-                    "3. Voltar");
+    private void menuConta(){
+        if (clienteLogado != null && contaSelecionada != null) while (true) {
+            String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
+                    "1. Depositar\n" +
+                    "2. Sacar\n" +
+                    "3. Transferir\n" +
+                    "4. Fechar conta\n" +
+                    "0. Voltar\n");
             if (ler.equals("1")) {
                 gerenciarContas();
             }
@@ -80,6 +128,27 @@ public class Terminal {
             else if (ler.equals("3")) {
                 clienteLogado = null;
                 menuPrincipal();
+            } else {
+                print("Tente novamente.");
+                //menuCliente();
+            }
+        }
+    }
+
+    private void gerenciarCadastro() {
+        if (clienteLogado != null) while (true) {
+            String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
+                    "1. Corrigir nome\n" +
+                    "2. Fechar Conta\n" +
+                    "0. Voltar\n");
+            if (ler.equals("1")) {
+                gerenciarContas();
+            }
+            else if (ler.equals("2")) {
+                gerenciarCadastro();
+            }
+            else if (ler.equals("0")) {
+                menuCliente();
             } else {
                 print("Tente novamente.");
                 //menuCliente();
@@ -88,23 +157,29 @@ public class Terminal {
     }
 
     private void criarCliente() {
-        String lerCPF = leitor.cpf("Digite o seu CPF: ");
-        String lerNome = leitor.ler("Digite o seu nome: ");
-        Cliente novoCliente = banco.criarCliente(lerNome, lerCPF);
-        clienteLogado = lerCPF;
-        cliente = novoCliente;
-        if (clienteLogado != null) {
-            print("Cliente " + cliente.getNome() + " criado com sucesso.");
-        } else {
-            print("Erro ao criar cliente.");
-        }
-        Boolean resposta = leitor.lerSN("Gostaria de criar uma conta? (S/N)");
-        if (resposta == true) {
-            criarConta();
-        } else {
-            print("Obrigado por ser cliente do nosso banco!");
-            clienteLogado = null;
+        String lerCPF = leitor.cpf("Digite o seu CPF ou 0 para voltar.");
+        if (lerCPF.equals("0")) {
             menuPrincipal();
+        } else if (banco.clienteExiste(lerCPF)) {
+            System.out.println("Aviso: Cliente com CPF " + lerCPF + " já está cadastrado.");
+        } else {
+            String lerNome = leitor.ler("Digite o seu nome: ");
+            Cliente novoCliente = banco.criarCliente(lerNome, lerCPF);
+            clienteLogado = lerCPF;
+            cliente = novoCliente;
+            if (clienteLogado != null) {
+                print("Cliente " + cliente.getNome() + " criado com sucesso.");
+            } else {
+                print("Erro ao criar cliente.");
+            }
+            Boolean resposta = leitor.lerSN("Gostaria de criar uma conta? (S/N)\n");
+            if (resposta == true) {
+                criarConta();
+            } else {
+                print("Obrigado por ser cliente do nosso banco!");
+                clienteLogado = null;
+                menuPrincipal();
+            }
         }
     }
 
@@ -115,14 +190,17 @@ public class Terminal {
                     "2. Conta Poupança\n" +
                     "3. Voltar\n");
             if (ler.equals("1")) {
-                banco.criarContaCorrente(clienteLogado);
+                Conta resultado = banco.criarContaCorrente(clienteLogado);
+                print("Conta nº" + resultado.getNumero() + " criada com sucesso!");
+                menuCliente();
             }
             else if (ler.equals("2")) {
-
+                Conta resultado = banco.criarContaPoupanca(clienteLogado);
+                print("Conta nº" + resultado.getNumero() + " criada com sucesso!");
+                menuCliente();
             }
             else if (ler.equals("3")) {
-                clienteLogado = null;
-                menuPrincipal();
+                menuCliente();
             } else {
                 print("Tente novamente.");
                 //menuCliente();
@@ -131,6 +209,8 @@ public class Terminal {
             print("erro de conta");
             menuPrincipal();}
     }
+
+
 
     //private void processarDeposito();
     //private void processarSaque();
@@ -155,10 +235,10 @@ public class Terminal {
     // Como este método não é estático, ele PODE usar "this".
     public void menuPrincipal() {
         String ler;
-        ler = leitor.ler("Bem vindo ao Banco Digital, insira o número correspondente com a operação desejada.\n" +
+        ler = leitor.ler("Bem vindo ao Banco Digital, selecione a operação desejada.\n" +
                 "1. Acesso Cliente.\n" +
                 "2. Criar nova conta\n" +
-                "3. Sair\n");
+                "3. Fechar APP\n");
 
         // Agora sim, podemos usar o scanner da instância!
         // Lógica para tratar a opção do menu
@@ -170,6 +250,7 @@ public class Terminal {
         } else if (ler.equals("3")){
             print("Obrigado por usar nosso banco digital!");
             fechar();
+            break;
         } else {
             print("Tente novamente.");
         }

@@ -52,4 +52,8 @@ public abstract class Conta {
     public String getNumero() {
         return numero;
     }
+
+    public Cliente getTitular() {
+        return titular;
+    }
 }

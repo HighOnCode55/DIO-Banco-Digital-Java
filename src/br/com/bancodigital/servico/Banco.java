@@ -5,7 +5,9 @@ import br.com.bancodigital.dominio.Conta;
 import br.com.bancodigital.dominio.ContaCorrente;
 import br.com.bancodigital.dominio.ContaPoupanca;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Banco {
@@ -18,15 +20,18 @@ public class Banco {
         this.clientes = new HashMap<>();
     }
 
-    public Cliente criarCliente(String nome, String cpf){
+    public Cliente criarCliente(String nome, String cpf) {
         if (this.clientes.containsKey(cpf)) {
             System.out.println("Aviso: Cliente com CPF " + cpf + " já está cadastrado.");
+            return null;
+        } else {
+            Cliente novoCliente = new Cliente(nome, cpf);
+            this.clientes.put(cpf, novoCliente);
+            return novoCliente;
         }
-        Cliente novoCliente = new Cliente(nome, cpf);
-        this.clientes.put(cpf, novoCliente);
-        return novoCliente;
     }
-    public String criarContaCorrente(String cpfTitular){
+
+    public Conta criarContaCorrente(String cpfTitular){
         Cliente titularDaConta = this.clientes.get(cpfTitular);
         if (titularDaConta == null) {
             System.out.println("Erro: Não é possível criar a conta. Cliente com CPF " + cpfTitular + " não encontrado.");
@@ -36,7 +41,7 @@ public class Banco {
         String numero = String.valueOf(this.proximoNumeroConta++);
         Conta novaConta = new ContaCorrente(titularDaConta, agencia, numero);
         this.contas.put(numero, novaConta);
-        return "Conta Corrente nº " + numero + " criada com sucesso!";
+        return novaConta;
     }
 
     public Conta criarContaPoupanca(String cpfTitular){
@@ -54,7 +59,7 @@ public class Banco {
 
     public boolean clienteExiste(String cpf){
         this.clientes.containsKey(cpf);
-        return true;
+        return this.clientes.containsKey(cpf);
     }
     //public Conta buscarConta(String numero);     //Aqui é um ótimo lugar para usar Optional<Conta> para tratar casos em que a conta não é encontrada.
 
@@ -82,9 +87,17 @@ public class Banco {
 
     //public void executarTransferencia(String numContaOrigem, String numContaDestino, double valor);
 
-    //public buscarClienteCpf(String cpf){
-    //    this.clientes.get(cpf);
-    //}
-
+    public List<Conta> buscarContaCliente(String cpf){
+        List<Conta> contasDoCliente = new ArrayList<>();
+        // Itera por TODAS as contas que o banco gerencia.
+        for (Conta conta : this.contas.values()) {
+            // Para cada conta, verifica se o CPF do titular é o que estamos procurando.
+            if (conta.getTitular().getCpf().equals(cpf)) {
+                // Se for, adiciona à nossa lista de resultados.
+                contasDoCliente.add(conta);
+            }
+        }
+        return contasDoCliente;
+    }
 
 }
