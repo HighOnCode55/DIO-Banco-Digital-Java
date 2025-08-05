@@ -31,10 +31,10 @@ public class Banco {
         }
     }
 
-    public Conta criarContaCorrente(String cpfTitular){
-        Cliente titularDaConta = this.clientes.get(cpfTitular);
+    public Conta criarContaCorrente(Cliente cliente){
+        Cliente titularDaConta = this.clientes.get(cliente.getCpf());
         if (titularDaConta == null) {
-            System.out.println("Erro: Não é possível criar a conta. Cliente com CPF " + cpfTitular + " não encontrado.");
+            System.out.println("Erro: Não é possível criar a conta. Cliente com CPF " + cliente.getCpf() + " não encontrado.");
             return null;
         }
         String agencia = "0001";
@@ -44,10 +44,10 @@ public class Banco {
         return novaConta;
     }
 
-    public Conta criarContaPoupanca(String cpfTitular){
-        Cliente titularDaConta = this.clientes.get(cpfTitular);
+    public Conta criarContaPoupanca(Cliente cliente){
+        Cliente titularDaConta = this.clientes.get(cliente.getCpf());
         if (titularDaConta == null) {
-            System.out.println("Erro: Não é possível criar a conta. Cliente com CPF " + cpfTitular + " não encontrado.");
+            System.out.println("Erro: Não é possível criar a conta. Cliente com CPF " + cliente.getCpf() + " não encontrado.");
             return null;
         }
         String agencia = "0001";
@@ -58,7 +58,6 @@ public class Banco {
     }
 
     public boolean clienteExiste(String cpf){
-        this.clientes.containsKey(cpf);
         return this.clientes.containsKey(cpf);
     }
     //public Conta buscarConta(String numero);     //Aqui é um ótimo lugar para usar Optional<Conta> para tratar casos em que a conta não é encontrada.
@@ -85,14 +84,18 @@ public class Banco {
         }
     }
 
+    public Cliente getCliente(String cpfTitular) {
+        return this.clientes.get(cpfTitular);
+    }
+
     //public void executarTransferencia(String numContaOrigem, String numContaDestino, double valor);
 
-    public List<Conta> buscarContaCliente(String cpf){
+    public List<Conta> buscarContaCliente(Cliente cliente){
         List<Conta> contasDoCliente = new ArrayList<>();
         // Itera por TODAS as contas que o banco gerencia.
         for (Conta conta : this.contas.values()) {
             // Para cada conta, verifica se o CPF do titular é o que estamos procurando.
-            if (conta.getTitular().getCpf().equals(cpf)) {
+            if (conta.getTitular().getCpf().equals(cliente.getCpf())) {
                 // Se for, adiciona à nossa lista de resultados.
                 contasDoCliente.add(conta);
             }

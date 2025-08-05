@@ -90,38 +90,6 @@ public class Leitor {
         }
     }
 
-    public Conta selecionarConta(List<Conta> contas, String prompt) {
-        while (true) {
-            System.out.println("\n--- Por favor, selecione uma conta ---");
-
-            // 1. Exibe o menu numerado. Usamos um 'for' com índice aqui.
-            for (int i = 0; i < contas.size(); i++) {
-                Conta conta = contas.get(i);
-                String tipoConta = (conta instanceof ContaCorrente) ? "Conta Corrente" : "Conta Poupança";
-
-                // Imprime a opção. Ex: "1. Conta Corrente | Ag: 0001 | Num: 123"
-                System.out.printf("%d. %s | Número: %s\n",
-                        (i + 1), // Mostra o número para o usuário (começando em 1)
-                        tipoConta,
-                        conta.getNumero());
-            }
-
-            // 2. Pede ao usuário para digitar o número.
-            int escolha = this.lerInt(prompt);
-
-            // 3. Valida a escolha.
-            //    Verifica se a escolha está entre 1 e o tamanho da lista.
-            if (escolha >= 1 && escolha <= contas.size()) {
-                // 4. Se a escolha é válida, retorna o objeto Conta correto.
-                //    Lembre-se que listas começam em 0, então usamos 'escolha - 1'.
-                return contas.get(escolha - 1);
-            } else {
-                // Se a escolha for inválida, mostra um erro e o laço 'while' repete o menu.
-                System.out.println("Erro: Opção inválida. Por favor, digite um número da lista.");
-            }
-        }
-    }
-
     public void fechar() {
         scanner.close();
     }

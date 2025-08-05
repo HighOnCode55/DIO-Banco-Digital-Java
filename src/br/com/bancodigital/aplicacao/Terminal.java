@@ -11,15 +11,17 @@ import java.util.List;
 public class Terminal {
     private Banco banco = new Banco();
     private Leitor leitor = new Leitor();
-    private String clienteLogado = null;
     private Conta contaSelecionada = null;
-    private Cliente cliente;
+    private Cliente cliente = null;
 
     private String nomeCliente(){
-        String nome;
-        nome = cliente.getNome();
-        return nome;
+        return cliente.getNome();
     }
+
+    private void logarCliente(String cpf){
+        cliente = banco.getCliente(cpf);
+    }
+
 
     // Métodos de ajuda!
     private void print(Object texto) {
@@ -33,17 +35,21 @@ public class Terminal {
     private void acessoCliente() {
         String lerCPF;
         lerCPF = leitor.cpf("Digite o seu CPF ou 0 para voltar");
-        if (lerCPF.equals("0")) {menuPrincipal();}
-        if (banco.clienteExiste(lerCPF)) {
-            clienteLogado = lerCPF;
+        if (lerCPF.equals("0")) {
+            menuPrincipal();
+        }
+        else if (banco.clienteExiste(lerCPF)) {
+            logarCliente(lerCPF);
             menuCliente();
-        } else {print("Cliente não encontrado, tente novamente ou 0 para voltar ao menu principal.");
-        acessoCliente();}
+        } else {
+            print("Cliente não encontrado, tente novamente ou 0 para voltar ao menu principal.");
+            acessoCliente();
+        }
     }
 
     //menuCliente leva laço while pois leitor.ler não contém o mesmo
     private void menuCliente() {
-        if (clienteLogado != null) while (true) {
+        if (cliente != null) while (true) {
             String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
                     "1. Gerenciar Contas\n" +
                     "2. Gerenciar Cadastro\n" +
@@ -55,7 +61,7 @@ public class Terminal {
                 gerenciarCadastro();
             }
             else if (ler.equals("3")) {
-                clienteLogado = null;
+                cliente = null;
                 menuPrincipal();
             } else {
                 print("Tente novamente.");
@@ -66,10 +72,10 @@ public class Terminal {
 
     private void gerenciarContas() {
         while (true) {
-            print("\n--- Seleção de Contas para " + clienteLogado + " ---");
+            print("\n--- Seleção de Contas para " + nomeCliente() + " ---");
 
             // 1. Busca a lista de contas ATUALIZADA a cada iteração do laço.
-            List<Conta> contasDoCliente = banco.buscarContaCliente(clienteLogado);
+            List<Conta> contasDoCliente = banco.buscarContaCliente(cliente);
 
             if (contasDoCliente.isEmpty()) {
                 print("Você ainda não possui contas.");
@@ -112,7 +118,7 @@ public class Terminal {
     }
 
     private void menuConta(){
-        if (clienteLogado != null && contaSelecionada != null) while (true) {
+        if (cliente != null && contaSelecionada != null) while (true) {
             String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
                     "1. Depositar\n" +
                     "2. Sacar\n" +
@@ -120,13 +126,15 @@ public class Terminal {
                     "4. Fechar conta\n" +
                     "0. Voltar\n");
             if (ler.equals("1")) {
-                gerenciarContas();
+                double lerDeposito = leitor.lerDouble("Digite o valor a ser depositado: ");
+                banco.executarDeposito(contaSelecionada.getNumero(), lerDeposito);
+
             }
             else if (ler.equals("2")) {
                 gerenciarCadastro();
             }
             else if (ler.equals("3")) {
-                clienteLogado = null;
+                cliente = null;
                 menuPrincipal();
             } else {
                 print("Tente novamente.");
@@ -136,7 +144,7 @@ public class Terminal {
     }
 
     private void gerenciarCadastro() {
-        if (clienteLogado != null) while (true) {
+        if (cliente != null) while (true) {
             String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
                     "1. Corrigir nome\n" +
                     "2. Fechar Conta\n" +
@@ -165,9 +173,8 @@ public class Terminal {
         } else {
             String lerNome = leitor.ler("Digite o seu nome: ");
             Cliente novoCliente = banco.criarCliente(lerNome, lerCPF);
-            clienteLogado = lerCPF;
             cliente = novoCliente;
-            if (clienteLogado != null) {
+            if (cliente != null) {
                 print("Cliente " + cliente.getNome() + " criado com sucesso.");
             } else {
                 print("Erro ao criar cliente.");
@@ -177,25 +184,25 @@ public class Terminal {
                 criarConta();
             } else {
                 print("Obrigado por ser cliente do nosso banco!");
-                clienteLogado = null;
+                cliente = null;
                 menuPrincipal();
             }
         }
     }
 
     private void criarConta() {
-        if (clienteLogado != null) while (true) {
+        if (cliente != null) while (true) {
             String ler = leitor.ler("Qual tipo de conta gostaria de criar?\n" +
                     "1. Conta Corrente\n" +
                     "2. Conta Poupança\n" +
                     "3. Voltar\n");
             if (ler.equals("1")) {
-                Conta resultado = banco.criarContaCorrente(clienteLogado);
+                Conta resultado = banco.criarContaCorrente(cliente);
                 print("Conta nº" + resultado.getNumero() + " criada com sucesso!");
                 menuCliente();
             }
             else if (ler.equals("2")) {
-                Conta resultado = banco.criarContaPoupanca(clienteLogado);
+                Conta resultado = banco.criarContaPoupanca(cliente);
                 print("Conta nº" + resultado.getNumero() + " criada com sucesso!");
                 menuCliente();
             }
@@ -234,25 +241,26 @@ public class Terminal {
     // MÉTODO DE INSTÂNCIA: Aqui começa a lógica do seu programa.
     // Como este método não é estático, ele PODE usar "this".
     public void menuPrincipal() {
-        String ler;
-        ler = leitor.ler("Bem vindo ao Banco Digital, selecione a operação desejada.\n" +
-                "1. Acesso Cliente.\n" +
-                "2. Criar nova conta\n" +
-                "3. Fechar APP\n");
+        while (true) {
+            String ler;
+            ler = leitor.ler("Bem vindo ao Banco Digital, selecione a operação desejada.\n" +
+                    "1. Acesso Cliente.\n" +
+                    "2. Criar nova conta\n" +
+                    "3. Fechar APP\n");
 
-        // Agora sim, podemos usar o scanner da instância!
-        // Lógica para tratar a opção do menu
-        while (true)
+            // Agora sim, podemos usar o scanner da instância!
+            // Lógica para tratar a opção do menu
             if (ler.equals("1")) {
-            acessoCliente();
-        } else if (ler.equals("2")) {
-            criarCliente();
-        } else if (ler.equals("3")){
-            print("Obrigado por usar nosso banco digital!");
-            fechar();
-            break;
-        } else {
-            print("Tente novamente.");
+                acessoCliente();
+            } else if (ler.equals("2")) {
+                criarCliente();
+            } else if (ler.equals("3")) {
+                print("Obrigado por usar nosso banco digital!");
+                fechar();
+                break;
+            } else {
+                print("Tente novamente.");
+            }
         }
     }
 
