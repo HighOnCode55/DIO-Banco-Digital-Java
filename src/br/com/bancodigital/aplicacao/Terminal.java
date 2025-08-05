@@ -35,9 +35,7 @@ public class Terminal {
     private void acessoCliente() {
         String lerCPF;
         lerCPF = leitor.cpf("Digite o seu CPF ou 0 para voltar");
-        if (lerCPF.equals("0")) {
-            menuPrincipal();
-        }
+        if (lerCPF.equals("0")) break;
         else if (banco.clienteExiste(lerCPF)) {
             logarCliente(lerCPF);
             menuCliente();
@@ -62,7 +60,7 @@ public class Terminal {
             }
             else if (ler.equals("3")) {
                 cliente = null;
-                menuPrincipal();
+                break;
             } else {
                 print("Tente novamente.");
                 //menuCliente();
@@ -110,7 +108,7 @@ public class Terminal {
                 this.contaSelecionada = contasDoCliente.get(escolha - 1);
                 menuConta();
                 // Após sair do menuDaConta, podemos querer voltar ao menu do cliente, então saímos do laço.
-                break;
+                //break;
             } else {
                 print("Erro: Opção inválida. Tente novamente.");
             }
@@ -135,7 +133,7 @@ public class Terminal {
             }
             else if (ler.equals("3")) {
                 cliente = null;
-                menuPrincipal();
+                break;
             } else {
                 print("Tente novamente.");
                 //menuCliente();
@@ -156,7 +154,7 @@ public class Terminal {
                 gerenciarCadastro();
             }
             else if (ler.equals("0")) {
-                menuCliente();
+                break;
             } else {
                 print("Tente novamente.");
                 //menuCliente();
@@ -167,7 +165,7 @@ public class Terminal {
     private void criarCliente() {
         String lerCPF = leitor.cpf("Digite o seu CPF ou 0 para voltar.");
         if (lerCPF.equals("0")) {
-            menuPrincipal();
+            break;
         } else if (banco.clienteExiste(lerCPF)) {
             System.out.println("Aviso: Cliente com CPF " + lerCPF + " já está cadastrado.");
         } else {
@@ -185,7 +183,7 @@ public class Terminal {
             } else {
                 print("Obrigado por ser cliente do nosso banco!");
                 cliente = null;
-                menuPrincipal();
+                break;
             }
         }
     }
@@ -199,15 +197,15 @@ public class Terminal {
             if (ler.equals("1")) {
                 Conta resultado = banco.criarContaCorrente(cliente);
                 print("Conta nº" + resultado.getNumero() + " criada com sucesso!");
-                menuCliente();
+                break;
             }
             else if (ler.equals("2")) {
                 Conta resultado = banco.criarContaPoupanca(cliente);
                 print("Conta nº" + resultado.getNumero() + " criada com sucesso!");
-                menuCliente();
+                break;
             }
             else if (ler.equals("3")) {
-                menuCliente();
+                break;
             } else {
                 print("Tente novamente.");
                 //menuCliente();
