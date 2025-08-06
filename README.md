@@ -37,3 +37,5 @@ O código está organizado nos seguintes pacotes:
 * util: Classes de utilidade reutilizáveis, como o LeitorDeConsole.
 
 * excecao: Classes de exceções customizadas para as regras de negócio.
+
+![Demonstração do terminal em ação](assets/banco.gif)
