@@ -75,7 +75,7 @@ public class Banco {
 
     public boolean executarSaque(String numeroConta, double valor){
         Conta contaParaSacar = this.contas.get(numeroConta);
-        if (contaParaSacar != null) {
+        if (contaParaSacar != null && contaExiste(numeroConta) && contaParaSacar.getSaldo() >= valor) {
             contaParaSacar.sacar(valor);
             return true;
         } else {
@@ -88,7 +88,65 @@ public class Banco {
         return this.clientes.get(cpfTitular);
     }
 
-    //public void executarTransferencia(String numContaOrigem, String numContaDestino, double valor);
+    public boolean executarTransferencia(String numContaOrigem, String numContaDestino, double valor) {
+        Conta contaParaSacar = this.contas.get(numContaOrigem);
+        Conta contaParaDepositar = this.contas.get(numContaDestino);
+        if (contaParaSacar != null && contaParaDepositar != null) {
+            if (!contaExiste(numContaDestino)) {
+                System.out.println("Erro: Conta de destino não encontrada.");
+                return false;
+            }
+            else if (contaParaSacar.getSaldo() > valor) {
+            contaParaSacar.sacar(valor);
+            contaParaDepositar.depositar(valor);
+            return true;
+            } else {System.out.println("Erro: Saldo insuficiente na conta de origem.");
+                return false;
+            }
+        } else {
+            System.out.println("Erro ao realizar operação.");
+            return false;
+        }
+    }
+
+    public boolean contaExiste(String numConta){
+        return this.contas.containsKey(numConta);
+    }
+
+    public String getTitular(String numeroConta){
+        return this.contas.get(numeroConta).getTitular().getNome();
+    }
+
+    public void imprimirExtrato(Conta conta){
+        if (conta instanceof ContaCorrente){
+            ContaCorrente contaCorrente = (ContaCorrente) conta;
+            contaCorrente.imprimirExtrato();
+        } else if (conta instanceof ContaPoupanca) {
+            ContaPoupanca contaPoupanca = (ContaPoupanca) conta;
+            contaPoupanca.imprimirExtrato();
+        }
+    }
+    public void fecharConta(String conta){
+        Conta contaParaSacar = this.contas.get(conta);
+        if (contaParaSacar.getSaldo() == 0){
+            this.contas.remove(conta);
+            System.out.println("Conta fechada com sucesso.");
+        } else {
+            System.out.println("Você precisa primeiro sacar os valores da conta.");
+        }
+    }
+
+    public void fecharCadastro(Cliente cliente){
+        List<Conta> contasDoCliente = buscarContaCliente(cliente);
+        if (contasDoCliente.isEmpty()) {
+            // If the client has no accounts, we can safely remove them from the clientes map
+            clientes.remove(cliente.getCpf());
+            System.out.println("Cadastro do cliente encerrado com sucesso.");
+        } else {
+            System.out.println("Cliente ainda possui contas ativas. Encerre todas as contas antes de fechar o cadastro.");
+        }
+
+    }
 
     public List<Conta> buscarContaCliente(Cliente cliente){
         List<Conta> contasDoCliente = new ArrayList<>();

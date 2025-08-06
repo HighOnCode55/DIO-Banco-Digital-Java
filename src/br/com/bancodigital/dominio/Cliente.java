@@ -20,4 +20,9 @@ public class Cliente {
         return this.cpf;
     }
 
+    public void corrigirNome(String nomeCorreto){
+        this.nome = nomeCorreto;
+        System.out.println("Nome atualizado para " + nomeCorreto);
+    }
+
 }
