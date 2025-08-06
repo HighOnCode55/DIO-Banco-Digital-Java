@@ -23,14 +23,12 @@ public abstract class Conta {
     public void depositar(double valor){
         Validar.numeroPositivo(valor, "O valor deve ser positivo.");
         this.saldo += valor;
-        System.out.println("Depósito no valor de R$" + valor + " realizado com sucesso.");
     }
 
     public void sacar(double valor){
         Validar.numeroPositivo(valor, "O valor deve ser positivo.");
         if(this.saldo >= valor){
             this.saldo -= valor;
-            System.out.println("Saque no valor de R$" + valor + " realizado com sucesso.");
         } else throw new SaldoException("Saldo insuficiente.");
     }
 

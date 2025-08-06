@@ -34,6 +34,7 @@ public class Terminal {
     //acessoCliente não leva laço while pois leitor.cpf já tem laço while para garantir entrada de cpf válido
     private void acessoCliente() {
         while (true) {
+            print("---------------------------------------");
             String lerCPF;
             lerCPF = leitor.cpf("Digite o seu CPF ou 0 para voltar");
             if (lerCPF.equals("0")) {
@@ -50,6 +51,7 @@ public class Terminal {
     //menuCliente leva laço while pois leitor.ler não contém o mesmo
     private void menuCliente() {
         if (cliente != null) while (true) {
+            print("---------------------------------------");
             String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
                     "1. Gerenciar Contas\n" +
                     "2. Gerenciar Cadastro\n" +
@@ -95,7 +97,7 @@ public class Terminal {
             print((contasDoCliente.size() + 1) + ". Criar Nova Conta");
             print("0. Voltar ao Menu Anterior");
 
-            int escolha = leitor.lerInt("Digite sua opção: ");
+            int escolha = leitor.lerInt("Digite sua opção: \n");
 
             // 4. Processa a escolha do usuário.
             if (escolha == 0) {
@@ -118,6 +120,7 @@ public class Terminal {
     }
 
     private void menuConta(){
+        print("---------------------------------------");
         if (cliente != null && contaSelecionada != null) {
             while (true) {
                 String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
@@ -130,23 +133,20 @@ public class Terminal {
                 if (ler.equals("1")) {
                     double lerDeposito = leitor.lerDouble("Digite o valor a ser depositado: ");
                     banco.executarDeposito(contaSelecionada.getNumero(), lerDeposito);
-                    print("Deposito no valor de" + lerDeposito + " realizado com sucesso.");
                 } else if (ler.equals("2")) {
+                    String contaNumero = contaSelecionada.getNumero();
                     double lerSaque = leitor.lerDouble("Digite o valor a ser sacado: ");
-                    banco.executarSaque(contaSelecionada.getNumero(), lerSaque);
-                    if (banco.executarSaque()) {
-                        print("Saque no valor de" + lerSaque + " realizado com sucesso.");
-                    }
+                    banco.executarSaque(contaNumero, lerSaque);
 
                 } else if (ler.equals("3")) {
-                    String lerContaDestino = leitor.ler("Para qual conta deseja transferir? Digite 0 para voltar");
+                    String lerContaDestino = leitor.ler("Para qual conta deseja transferir? Digite 0 para voltar\n");
                     if (lerContaDestino.equals("0")) {
                         break;
                     }
                     boolean confirmacao = leitor.lerSN("você deseja fazer a transferência para a conta de " + banco.getTitular(lerContaDestino) + "? (S/N)\n");
                     if (confirmacao) {
                         double valor = leitor.lerDouble("Digite o valor a ser transferido: ");
-                        banco.executarTransferencia(contaSelecionada.getNumero(), lerContaDestino, valor)
+                        banco.executarTransferencia(contaSelecionada.getNumero(), lerContaDestino, valor);
                     } else {
                         break;
                     }
@@ -154,6 +154,7 @@ public class Terminal {
                     banco.imprimirExtrato(contaSelecionada);
                 } else if (ler.equals("5")){
                     banco.fecharConta(contaSelecionada.getNumero());
+                    break;
                 } else if (ler.equals("0")) {
                     break;
                 } else {
@@ -166,13 +167,14 @@ public class Terminal {
 
     private void gerenciarCadastro() {
         if (cliente != null) while (true) {
+            print("---------------------------------------");
             String ler = leitor.ler("Bem vindo, " + nomeCliente() + ". Do que precisa hoje?\n" +
                     "1. Corrigir nome\n" +
                     "2. Fechar Conta\n" +
                     "0. Voltar\n");
             if (ler.equals("1")) {
-                String ler = leitor.ler("Qual seu nome correto?");
-                cliente.corrigirNome(ler);
+                String lerNome = leitor.ler("Qual seu nome correto?\n");
+                cliente.corrigirNome(lerNome);
             }
             else if (ler.equals("2")) {
                 banco.fecharCadastro(cliente);
@@ -218,6 +220,7 @@ public class Terminal {
     }
 
     private void criarConta() {
+        print("---------------------------------------");
         if (cliente != null) while (true) {
             String ler = leitor.ler("Qual tipo de conta gostaria de criar?\n" +
                     "1. Conta Corrente\n" +
@@ -263,6 +266,7 @@ public class Terminal {
     // Como este método não é estático, ele PODE usar "this".
     public void menuPrincipal() {
         while (true) {
+            print("---------------------------------------");
             String ler;
             ler = leitor.ler("Bem vindo ao Banco Digital, selecione a operação desejada.\n" +
                     "1. Acesso Cliente.\n" +

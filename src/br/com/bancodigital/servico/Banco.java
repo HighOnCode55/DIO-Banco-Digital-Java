@@ -66,6 +66,7 @@ public class Banco {
         Conta contaParaDepositar = this.contas.get(numeroConta);
         if (contaParaDepositar != null) {
             contaParaDepositar.depositar(valor);
+            System.out.println("Depósito no valor de R$" + valor + " realizado com sucesso.");
             return true;
         } else {
             System.out.println("Erro: Conta número " + numeroConta + " não encontrada.");
@@ -77,6 +78,7 @@ public class Banco {
         Conta contaParaSacar = this.contas.get(numeroConta);
         if (contaParaSacar != null && contaExiste(numeroConta) && contaParaSacar.getSaldo() >= valor) {
             contaParaSacar.sacar(valor);
+            System.out.println("Saque no valor de" + valor + " realizado com sucesso.");
             return true;
         } else {
             System.out.println("Erro: Conta número " + numeroConta + " não encontrada.");
@@ -96,9 +98,10 @@ public class Banco {
                 System.out.println("Erro: Conta de destino não encontrada.");
                 return false;
             }
-            else if (contaParaSacar.getSaldo() > valor) {
+            else if (contaParaSacar.getSaldo() >= valor) {
             contaParaSacar.sacar(valor);
             contaParaDepositar.depositar(valor);
+            System.out.println("Transferência realizada com sucesso.");
             return true;
             } else {System.out.println("Erro: Saldo insuficiente na conta de origem.");
                 return false;
